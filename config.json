@@ -1,0 +1,16 @@
+{
+  "site_password": "",
+  "site_login_required": false,
+  "admin_password": "admin",
+  "pairwise_folder": "Demo_faces",
+  "pairwise_folder_selector": true,
+  "show_intro": false,
+  "show_pairwise": true,
+  "show_stack": true,
+  "show_category": true,
+  "pair_selection_model": "TrueSkill",
+  "target_per_image": 10,
+  "min_comparisons_consensus": 400,
+  "protected_folders": [],
+  "ui_font_size": 100
+}

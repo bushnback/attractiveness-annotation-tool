@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.claude/
+results/
+raters.json
+
+# Only the bundled demo dataset is tracked; anything else dropped into
+# datasets/ (e.g. your own data) stays local.
+datasets/*
+!datasets/Demo_faces/

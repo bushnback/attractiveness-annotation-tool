@@ -1,0 +1,47 @@
+    <div style="margin-bottom:32px">
+      <div class="panel-title" style="margin-bottom:10px">Welcome to the Attractiveness Ranker</div>
+      <p style="font-size:.9rem;color:var(--muted);line-height:1.7">This tool covers two face datasets. The first is a private set of <strong style="color:var(--text)">84 Caucasian female faces</strong> — the primary target for pairwise ranking and manual stack ranking. The second is the <strong style="color:var(--text)">SCUT-FBP5500 dataset</strong>, a published facial attractiveness study comprising 2,750 faces (2,000 Asian Female, 750 Caucasian Female). The broader objective of both datasets is the same: to understand how humans perceive and rate attractiveness, and ultimately to train machine learning models that can replicate those judgments. Sixty raters have already scored every SCUT face on a 1–5 scale — you can add your own ratings and compare your perception directly against theirs in the Rater Analysis section.</p>
+      <p style="font-size:.9rem;color:var(--muted);line-height:1.7;margin-top:10px">The workflow has three stages. You do not need to complete all three — each stage is useful on its own — but together they give you the most accurate result.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:24px;margin-bottom:32px">
+
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px">
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#2563eb;margin-bottom:6px">Stage 1 — Pairwise Face Comparison</div>
+        <div style="font-weight:700;font-size:1rem;margin-bottom:8px">Build a ranking from side-by-side choices</div>
+        <p style="font-size:.84rem;color:var(--muted);line-height:1.65;margin:0 0 10px">You are shown two faces at a time and click the one you find more attractive. A ranking algorithm recovers the full order from your choices. Two algorithms are available:</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+          <div style="background:var(--surface);border-radius:6px;padding:10px 14px">
+            <span style="font-weight:700;color:var(--text)">Bradley-Terry (BT)</span>
+            <span style="font-size:.82rem;color:var(--muted);margin-left:6px">— recommended for accuracy</span>
+            <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:4px 0 0">Fits a statistical model to all your comparisons at once and produces a precise score for every face. BT consistently gives better-calibrated rankings, but it needs volume to work well. Aim for at least <strong style="color:var(--text)">10 comparisons per face</strong> — roughly 840 clicks across the 84-face set. Results improve steadily as you add more data.</p>
+          </div>
+          <div style="background:var(--surface);border-radius:6px;padding:10px 14px">
+            <span style="font-weight:700;color:var(--text)">TrueSkill (TS)</span>
+            <span style="font-size:.82rem;color:var(--muted);margin-left:6px">— useful when data is sparse</span>
+            <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:4px 0 0">A Bayesian approach that updates a confidence interval for each face after every comparison. It produces a usable ranking much earlier — even after a few hundred clicks — but the intervals are wide and rankings are less stable than BT at the same data volume. A good starting point if you want early results to seed Stage 2.</p>
+          </div>
+        </div>
+        <div style="margin-top:4px;background:var(--surface);border:1px dashed var(--border);border-radius:6px;height:140px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.76rem">Screenshot placeholder</div>
+      </div>
+
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px">
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#8b5cf6;margin-bottom:6px">Stage 2 — Face Stack Ranking</div>
+        <div style="font-weight:700;font-size:1rem;margin-bottom:8px">Review and refine the order by hand</div>
+        <p style="font-size:.84rem;color:var(--muted);line-height:1.65;margin:0">Import your BT or TrueSkill ranking as a starting point, then adjust it manually — drag individual faces up or down, or use the zone panel to quickly drop a face into roughly the right region. You can also build the ranking from scratch if you prefer a completely manual approach. The final order is yours to own.</p>
+        <div style="margin-top:16px;background:var(--surface);border:1px dashed var(--border);border-radius:6px;height:140px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.76rem">Screenshot placeholder</div>
+      </div>
+
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px">
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ec4899;margin-bottom:6px">Stage 3 — Face Rating</div>
+        <div style="font-weight:700;font-size:1rem;margin-bottom:8px">Assign 1–5 ratings to match the study format</div>
+        <p style="font-size:.84rem;color:var(--muted);line-height:1.65;margin:0">Once you have a ranking you are happy with, use <strong>Bulk Apply Rating</strong> to convert it into 1–5 ratings in one step — draw the boundary lines between rating bands and apply them across the whole set at once. Alternatively, use <strong>Rate Faces</strong> to score faces individually. Your ratings can then be compared directly against the 60 SCUT raters in the Rater Analysis section.</p>
+        <div style="margin-top:16px;background:var(--surface);border:1px dashed var(--border);border-radius:6px;height:140px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.76rem">Screenshot placeholder</div>
+      </div>
+
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn btn-primary" onclick="closeIntroModal()">Got it, let&#x27;s go</button>
+      <button class="btn btn-ghost" onclick="closeIntroModalPermanently()">Don&#x27;t show again</button>
+    </div>

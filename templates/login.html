@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attractiveness Ranker — Enter Password</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0f1117;
+  --surface: #1a1d27;
+  --border:  #2e3350;
+  --accent:  #6c63ff;
+  --accent2: #a78bfa;
+  --text:    #e2e8f0;
+  --muted:   #94a3b8;
+  --red:     #ef4444;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.5);
+  text-align: center;
+}
+
+.logo {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent2);
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  font-size: .88rem;
+  color: var(--muted);
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+
+.form-group {
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+label {
+  display: block;
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+
+input[type="password"] {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #0f1117;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  letter-spacing: .1em;
+  transition: border-color .15s;
+}
+
+input[type="password"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.error {
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.3);
+  color: var(--red);
+  padding: 9px 12px;
+  border-radius: 7px;
+  font-size: .82rem;
+  margin-bottom: 14px;
+  display: none;
+  text-align: left;
+}
+
+.btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: .95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+  margin-top: 4px;
+}
+.btn:hover  { background: #574ed6; }
+.btn:active { transform: scale(.98); }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">Attractiveness Ranker</div>
+  <p class="subtitle">Facial attractiveness ranking study.<br>Enter the password to continue.</p>
+
+  <div class="error" id="err">Incorrect password — please try again.</div>
+
+  <div class="form-group">
+    <label>Password</label>
+    <input type="password" id="pwd" placeholder="Enter password" autofocus>
+  </div>
+
+  <button class="btn" onclick="submit()">Enter</button>
+</div>
+
+<script>
+async function submit() {
+  const pwd = document.getElementById("pwd").value;
+  const err = document.getElementById("err");
+  err.style.display = "none";
+
+  const res  = await fetch("/api/site-login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password: pwd }),
+  });
+
+  if (res.ok) {
+    window.location = "/";
+  } else {
+    err.style.display = "block";
+    document.getElementById("pwd").value = "";
+    document.getElementById("pwd").focus();
+  }
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter") submit();
+});
+</script>
+</body>
+</html>

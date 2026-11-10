@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Attractiveness Ranker</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:      #0f1117;
+  --surface: #1a1d27;
+  --surface2:#22263a;
+  --border:  #2e3350;
+  --accent:  #6c63ff;
+  --accent2: #a78bfa;
+  --text:    #e2e8f0;
+  --muted:   #94a3b8;
+  --green:   #22c55e;
+  --red:     #ef4444;
+  --radius:  10px;
+  --shadow:  0 4px 24px rgba(0,0,0,.4);
+}
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0; }
+
+/* ── Header ── */
+.adm-header { display:flex; align-items:center; justify-content:space-between; padding:14px 32px; background:var(--surface); border-bottom:1px solid var(--border); }
+.adm-header-title { font-size:1.05rem; font-weight:700; color:var(--accent2); }
+.adm-header-actions { display:flex; gap:10px; align-items:center; }
+
+/* ── Layout ── */
+.adm-body { max-width:860px; margin:0 auto; padding:32px 24px; display:flex; flex-direction:column; gap:24px; }
+
+/* ── Card ── */
+.adm-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px 28px; }
+.adm-card-title { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--accent2); margin-bottom:18px; }
+
+/* ── Rows ── */
+.adm-row { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:10px 0; border-bottom:1px solid var(--border); }
+.adm-row:last-child { border-bottom:none; padding-bottom:0; }
+.adm-row:first-child { padding-top:0; }
+.adm-label { font-size:.85rem; font-weight:600; color:var(--text); min-width:200px; }
+.adm-hint  { font-size:.73rem; color:var(--muted); margin-top:2px; line-height:1.4; }
+.adm-control { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+
+/* ── Text / number input ── */
+.adm-input {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); font-size: .84rem; padding: 6px 10px; width: 200px;
+  font-family: inherit;
+}
+.adm-input:focus { outline: none; border-color: var(--accent); }
+.adm-input-sm { width: 80px; }
+
+/* ── Toggle switch ── */
+.adm-toggle { position:relative; display:inline-block; width:44px; height:24px; flex-shrink:0; }
+.adm-toggle input { opacity:0; width:0; height:0; }
+.adm-toggle-slider {
+  position:absolute; inset:0; border-radius:24px;
+  background:var(--surface2); border:1px solid var(--border);
+  cursor:pointer; transition:background .2s, border-color .2s;
+}
+.adm-toggle-slider::before {
+  content:''; position:absolute; width:16px; height:16px; border-radius:50%;
+  background:var(--muted); top:3px; left:3px; transition:transform .2s, background .2s;
+}
+.adm-toggle input:checked + .adm-toggle-slider { background:var(--accent); border-color:var(--accent); }
+.adm-toggle input:checked + .adm-toggle-slider::before { transform:translateX(20px); background:white; }
+.adm-toggle-label { font-size:.8rem; color:var(--muted); min-width:28px; }
+
+/* ── Model radio pills ── */
+.adm-pills { display:flex; gap:6px; }
+.adm-pill {
+  padding:5px 14px; border-radius:20px; border:1px solid var(--border);
+  background:var(--surface2); color:var(--muted); font-size:.8rem; font-weight:600;
+  cursor:pointer; transition:background .15s, color .15s, border-color .15s;
+}
+.adm-pill.active { background:var(--accent); border-color:var(--accent); color:white; }
+
+/* ── Checkbox group ── */
+.adm-checkgroup { display:flex; flex-wrap:wrap; gap:8px; }
+.adm-checkitem {
+  display:flex; align-items:center; gap:6px; padding:5px 12px;
+  background:var(--surface2); border:1px solid var(--border); border-radius:6px;
+  cursor:pointer; font-size:.82rem; user-select:none; transition:border-color .15s;
+}
+.adm-checkitem input { accent-color:var(--accent); width:14px; height:14px; cursor:pointer; }
+.adm-checkitem.checked { border-color:var(--accent); color:var(--accent2); }
+
+/* ── Buttons ── */
+.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border-radius:8px; border:none; font-size:.84rem; font-weight:600; cursor:pointer; transition:background .15s; font-family:inherit; }
+.btn-primary { background:var(--accent); color:white; }
+.btn-primary:hover { background:#574ed6; }
+.btn-ghost { background:var(--surface2); color:var(--muted); border:1px solid var(--border); }
+.btn-ghost:hover { color:var(--text); }
+.btn-sm { padding:5px 12px; font-size:.78rem; }
+
+/* ── Login card ── */
+.adm-login { max-width:380px; margin:80px auto; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:36px 32px; box-shadow:var(--shadow); text-align:center; }
+.adm-login h2 { color:var(--accent2); margin-bottom:8px; font-size:1.1rem; }
+.adm-login p  { color:var(--muted); font-size:.84rem; margin-bottom:24px; line-height:1.5; }
+.adm-error { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); color:var(--red); padding:8px 12px; border-radius:6px; font-size:.8rem; margin-bottom:12px; display:none; }
+
+/* ── Save bar ── */
+.adm-save-bar { display:flex; align-items:center; gap:14px; padding:18px 28px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
+.adm-save-msg { font-size:.82rem; }
+.adm-save-msg.ok  { color:var(--green); }
+.adm-save-msg.err { color:var(--red); }
+</style>
+</head>
+<body>
+
+{% if not admin_authed %}
+<!-- ── Login ── -->
+<div class="adm-login">
+  <h2>Admin Panel</h2>
+  <p>Enter the admin password to access configuration.</p>
+  <div class="adm-error" id="login-error">Incorrect password.</div>
+  <input class="adm-input" type="password" id="admin-pwd" placeholder="Admin password" style="width:100%;margin-bottom:12px" onkeydown="if(event.key==='Enter')adminLogin()">
+  <button class="btn btn-primary" style="width:100%" onclick="adminLogin()">Enter</button>
+  <div style="margin-top:16px"><a href="/" style="color:var(--muted);font-size:.78rem;text-decoration:none">← Back to app</a></div>
+</div>
+
+<script>
+async function adminLogin() {
+  const pwd = document.getElementById('admin-pwd').value;
+  const err = document.getElementById('login-error');
+  err.style.display = 'none';
+  const res = await fetch('/api/admin/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password: pwd}) });
+  if (res.ok) { location.reload(); }
+  else { err.style.display='block'; document.getElementById('admin-pwd').value=''; document.getElementById('admin-pwd').focus(); }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
+</script>
+
+{% else %}
+<!-- ── Admin UI ── -->
+<div class="adm-header">
+  <div style="display:flex;align-items:center;gap:16px">
+    <a href="/" style="color:var(--muted);font-size:.82rem;text-decoration:none;display:flex;align-items:center;gap:4px">← App</a>
+    <span class="adm-header-title">Admin Panel</span>
+  </div>
+  <div class="adm-header-actions">
+    <button class="btn btn-ghost btn-sm" onclick="adminLogout()">Sign out of admin</button>
+  </div>
+</div>
+
+<div class="adm-body" id="adm-body" style="display:none">
+
+  <!-- Access -->
+  <div class="adm-card">
+    <div class="adm-card-title">Access</div>
+    <div class="adm-row">
+      <div><div class="adm-label">Require site login</div><div class="adm-hint">When off, anyone can browse and rate without logging in. The admin panel always needs the admin password below regardless of this setting.</div></div>
+      <div class="adm-control">
+        <label class="adm-toggle"><input type="checkbox" id="cfg-site-login-required"><span class="adm-toggle-slider"></span></label>
+        <span class="adm-toggle-label" id="lbl-site-login-required"></span>
+      </div>
+    </div>
+    <div class="adm-row">
+      <div><div class="adm-label">Site password</div><div class="adm-hint">Only enforced while "Require site login" above is on.</div></div>
+      <div class="adm-control"><input class="adm-input" type="text" id="cfg-site-password" autocomplete="off"></div>
+    </div>
+    <div class="adm-row">
+      <div><div class="adm-label">Admin password</div><div class="adm-hint">Required to access this panel.</div></div>
+      <div class="adm-control"><input class="adm-input" type="text" id="cfg-admin-password" autocomplete="off"></div>
+    </div>
+  </div>
+
+  <!-- Sections -->
+  <div class="adm-card">
+    <div class="adm-card-title">Section Visibility</div>
+    <div class="adm-row">
+      <div><div class="adm-label">Introduction</div><div class="adm-hint">Show the Introduction button in the header.</div></div>
+      <div class="adm-control">
+        <label class="adm-toggle"><input type="checkbox" id="cfg-show-intro"><span class="adm-toggle-slider"></span></label>
+        <span class="adm-toggle-label" id="lbl-show-intro"></span>
+      </div>
+    </div>
+    <div class="adm-row">
+      <div><div class="adm-label">Pairwise Comparison</div><div class="adm-hint">Compare, My Progress, Rankings, Leader Board, BT vs TS.</div></div>
+      <div class="adm-control">
+        <label class="adm-toggle"><input type="checkbox" id="cfg-show-pairwise"><span class="adm-toggle-slider"></span></label>
+        <span class="adm-toggle-label" id="lbl-show-pairwise"></span>
+      </div>
+    </div>
+    <div class="adm-row">
+      <div><div class="adm-label">Face Stack Ranking</div><div class="adm-hint">Rank Faces, Ranking Metrics.</div></div>
+      <div class="adm-control">
+        <label class="adm-toggle"><input type="checkbox" id="cfg-show-stack"><span class="adm-toggle-slider"></span></label>
+        <span class="adm-toggle-label" id="lbl-show-stack"></span>
+      </div>
+    </div>
+    <div class="adm-row">
+      <div><div class="adm-label">Face Rating</div><div class="adm-hint">Rate Faces, Bulk Apply Rating, Rating Results, Rater Analysis.</div></div>
+      <div class="adm-control">
+        <label class="adm-toggle"><input type="checkbox" id="cfg-show-category"><span class="adm-toggle-slider"></span></label>
+        <span class="adm-toggle-label" id="lbl-show-category"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dataset -->
+  <div class="adm-card">
+    <div class="adm-card-title">Dataset</div>
+    <div class="adm-row">
+      <div><div class="adm-label">Default pairwise folder</div><div class="adm-hint">Folder shown first when the app loads.</div></div>
+      <div class="adm-control">
+        <select class="adm-input" id="cfg-pairwise-folder"></select>
+      </div>
+    </div>
+    <div class="adm-row">
+      <div><div class="adm-label">Show folder selectors</div><div class="adm-hint">Let users switch datasets across all sections of the UI.</div></div>
+      <div class="adm-control">
+        <label class="adm-toggle"><input type="checkbox" id="cfg-folder-selector"><span class="adm-toggle-slider"></span></label>
+        <span class="adm-toggle-label" id="lbl-folder-selector"></span>
+      </div>
+    </div>
+    <div class="adm-row" style="align-items:flex-start">
+      <div><div class="adm-label">Protected folders</div><div class="adm-hint">Ratings from non-official users go to a separate guest file, keeping official data untouched.</div></div>
+      <div class="adm-control"><div class="adm-checkgroup" id="cfg-protected-folders"></div></div>
+    </div>
+  </div>
+
+  <!-- Algorithms -->
+  <div class="adm-card">
+    <div class="adm-card-title">Algorithms</div>
+    <div class="adm-row">
+      <div><div class="adm-label">Default pairing model</div><div class="adm-hint">Global default when a user starts a new session. Users can override this for themselves.</div></div>
+      <div class="adm-control">
+        <div class="adm-pills">
+          <button class="adm-pill" id="pill-bt" onclick="setModelPill('BT')">Bradley-Terry</button>
+          <button class="adm-pill" id="pill-ts" onclick="setModelPill('TrueSkill')">TrueSkill</button>
+        </div>
+      </div>
+    </div>
+    <div class="adm-row">
+      <div><div class="adm-label">Comparisons target per image</div><div class="adm-hint">Goal for coverage progress bar.</div></div>
+      <div class="adm-control"><input class="adm-input adm-input-sm" type="number" id="cfg-target" min="1" max="100"></div>
+    </div>
+    <div class="adm-row">
+      <div><div class="adm-label">Min comparisons for consensus</div><div class="adm-hint">Raters below this threshold are excluded from consensus calculations.</div></div>
+      <div class="adm-control"><input class="adm-input adm-input-sm" type="number" id="cfg-min-consensus" min="1"></div>
+    </div>
+    <div class="adm-row">
+      <div><div class="adm-label">UI font size</div><div class="adm-hint">Global text size for all users. 100% is the browser default.</div></div>
+      <div class="adm-control">
+        <select class="adm-input" id="cfg-font-size">
+          <option value="85">85%</option>
+          <option value="90">90%</option>
+          <option value="95">95%</option>
+          <option value="100">100%</option>
+          <option value="105">105%</option>
+          <option value="110">110%</option>
+          <option value="115">115%</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save -->
+  <div class="adm-save-bar">
+    <button class="btn btn-primary" onclick="saveConfig()">Save changes</button>
+    <span class="adm-save-msg" id="save-msg"></span>
+  </div>
+
+</div><!-- /adm-body -->
+
+<script>
+let _cfg = {};
+let _selectedModel = 'TrueSkill';
+
+function toggleLabel(id, val) {
+  const el = document.getElementById('lbl-' + id);
+  if (el) el.textContent = val ? 'On' : 'Off';
+}
+
+function bindToggle(id) {
+  const el = document.getElementById('cfg-' + id);
+  el.addEventListener('change', () => toggleLabel(id, el.checked));
+}
+
+function setModelPill(m) {
+  _selectedModel = m;
+  document.getElementById('pill-bt').classList.toggle('active', m === 'BT');
+  document.getElementById('pill-ts').classList.toggle('active', m === 'TrueSkill');
+}
+
+function buildFolderOptions(folders, selected) {
+  const sel = document.getElementById('cfg-pairwise-folder');
+  sel.innerHTML = '';
+  folders.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f; opt.textContent = f;
+    if (f === selected) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function buildProtectedCheckboxes(folders, protected_) {
+  const el = document.getElementById('cfg-protected-folders');
+  el.innerHTML = '';
+  folders.forEach(f => {
+    const checked = protected_.includes(f);
+    const item = document.createElement('label');
+    item.className = 'adm-checkitem' + (checked ? ' checked' : '');
+    item.innerHTML = `<input type="checkbox" value="${f}" ${checked ? 'checked' : ''}> ${f}`;
+    item.querySelector('input').addEventListener('change', e => {
+      item.classList.toggle('checked', e.target.checked);
+    });
+    el.appendChild(item);
+  });
+}
+
+function getProtectedFolders() {
+  return Array.from(document.querySelectorAll('#cfg-protected-folders input:checked')).map(i => i.value);
+}
+
+async function loadConfig() {
+  const res = await fetch('/api/admin/config');
+  if (!res.ok) { document.getElementById('adm-body').innerHTML = '<div style="padding:32px;color:var(--red)">Failed to load config.</div>'; return; }
+  _cfg = await res.json();
+
+  // Access
+  document.getElementById('cfg-site-password').value  = _cfg.site_password  || '';
+  document.getElementById('cfg-admin-password').value = _cfg.admin_password || '';
+  const slr = document.getElementById('cfg-site-login-required');
+  slr.checked = _cfg.site_login_required ?? false;
+  toggleLabel('site-login-required', slr.checked);
+  bindToggle('site-login-required');
+
+  // Sections
+  ['show-intro','show-pairwise','show-stack','show-category'].forEach(id => {
+    const key = id.replace(/-/g, '_').replace('show_', 'show_');
+    const cfgKey = id === 'show-intro' ? 'show_intro' : id.replace('show-','show_');
+    const el = document.getElementById('cfg-' + id);
+    const val = _cfg[cfgKey.replace(/-/g,'_')] ?? true;
+    el.checked = val;
+    toggleLabel(id, val);
+    bindToggle(id);
+  });
+
+  // Dataset
+  buildFolderOptions(_cfg.all_folders || [], _cfg.pairwise_folder || '');
+  const fs = document.getElementById('cfg-folder-selector');
+  fs.checked = _cfg.pairwise_folder_selector ?? true;
+  toggleLabel('folder-selector', fs.checked);
+  bindToggle('folder-selector');
+  buildProtectedCheckboxes(_cfg.all_folders || [], _cfg.protected_folders || []);
+
+  // Algorithms
+  setModelPill(_cfg.pair_selection_model || 'TrueSkill');
+  document.getElementById('cfg-target').value       = _cfg.target_per_image          ?? 10;
+  document.getElementById('cfg-min-consensus').value = _cfg.min_comparisons_consensus ?? 400;
+  document.getElementById('cfg-font-size').value    = _cfg.ui_font_size               ?? 100;
+
+  document.getElementById('adm-body').style.display = '';
+}
+
+async function saveConfig() {
+  const msgEl = document.getElementById('save-msg');
+  msgEl.textContent = 'Saving…'; msgEl.className = 'adm-save-msg';
+
+  const payload = {
+    site_password:             document.getElementById('cfg-site-password').value,
+    site_login_required:       document.getElementById('cfg-site-login-required').checked,
+    admin_password:            document.getElementById('cfg-admin-password').value,
+    pairwise_folder:           document.getElementById('cfg-pairwise-folder').value,
+    pairwise_folder_selector:  document.getElementById('cfg-folder-selector').checked,
+    show_intro:                document.getElementById('cfg-show-intro').checked,
+    show_pairwise:             document.getElementById('cfg-show-pairwise').checked,
+    show_stack:                document.getElementById('cfg-show-stack').checked,
+    show_category:             document.getElementById('cfg-show-category').checked,
+    pair_selection_model:      _selectedModel,
+    target_per_image:          parseInt(document.getElementById('cfg-target').value) || 10,
+    min_comparisons_consensus: parseInt(document.getElementById('cfg-min-consensus').value) || 400,
+    protected_folders:         getProtectedFolders(),
+    ui_font_size:              parseInt(document.getElementById('cfg-font-size').value) || 100,
+  };
+
+  const res = await fetch('/api/admin/config', {
+    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+  });
+  if (res.ok) {
+    msgEl.textContent = '✓ Saved'; msgEl.className = 'adm-save-msg ok';
+  } else {
+    const d = await res.json();
+    msgEl.textContent = '✗ ' + (d.error || 'Error'); msgEl.className = 'adm-save-msg err';
+  }
+  setTimeout(() => { msgEl.textContent = ''; }, 4000);
+}
+
+async function adminLogout() {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  location.reload();
+}
+
+loadConfig();
+</script>
+
+{% endif %}
+</body>
+</html>
